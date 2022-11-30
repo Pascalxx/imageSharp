@@ -37,10 +37,6 @@ def do_laplacian(img_input):
 
     print('do_laplacian done!')
     # cv2.imshow('frame', out_img)
-    # while True:
-    #     cv2.imshow('frame', out_img)
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
 
     return out_img
 
@@ -66,14 +62,11 @@ def do_first_order(img_input):
 
     print('do_first_order done!')
     # cv2.imshow('frame', out_img)
-    # while True:
-    #     cv2.imshow('frame', out_img)
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
 
     return out_img
 
 
+# 模糊處理
 def do_median_filter(img_input):
     print('do_median_filter is running...')
     out_img = np.empty([img_input.shape[0], img_input.shape[1]])
@@ -92,7 +85,7 @@ def do_median_filter(img_input):
                 + (img_input[i + 1][j + 1] if (
                     i < img_input.shape[0] - 1 and j < img_input.shape[1] - 1) else 0)
 
-            d = d / 9
+            d = 2 * d / 9
             # d = d / 255
             d = 255 if d > 255 else d
             d = 0 if d < 0 else d
@@ -100,12 +93,34 @@ def do_median_filter(img_input):
 
     print('do_median_filter done!')
     # cv2.imshow('frame', out_img)
-    # while True:
-    #     cv2.imshow('frame', out_img)
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
 
     return out_img
+
+
+# 一階與二階影像相乘
+def do_multiple(img_input_fst, img_input_sec):
+    print('do_multiple is running...')
+    out_img = np.empty([img_input_fst.shape[0], img_input_fst.shape[1]])
+
+    # 逐一處理像素
+    for i in range(out_img.shape[0]):
+        for j in range(out_img.shape[1]):
+            out_img[i][j] = img_input_fst[i][j] * img_input_sec[i][j]
+
+    print('do_multiple done!')
+    return out_img
+
+
+# 原始影像銳化
+def do_image_sharp(img_input, multiple_img_input):
+    print('do_image_sharp is running...')
+    out_img = np.empty([img_input.shape[0], img_input.shape[1]])
+    for i in range(img_input.shape[0]):
+        for j in range(img_input.shape[1]):
+            out_img[i][j] = img_input[i][j] + multiple_img_input[i][j]
+
+    print('do_image_sharp done!')
+    cv2.imshow('frame_end', out_img)
 
 
 # # # # # # # # # # #
@@ -115,3 +130,9 @@ if __name__ == '__main__':
     laplacian_img = do_laplacian(img_bw)  # 進行Laplacian處理
     first_order_img = do_first_order(img_bw)  # 進行一階微分處理
     median_filter_img = do_median_filter(first_order_img)  # 模糊去雜訊
+    multiple_img = do_multiple(first_order_img, laplacian_img)  # 一階與二階影像相乘
+
+    cv2.imshow('frame_o', img_bw)
+    do_image_sharp(img_bw, multiple_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
